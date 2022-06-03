@@ -22,6 +22,8 @@ def all_products(request):
             if sortkey == 'name':
                 sortkey = 'lower_name'  # to allow for lower case
                 products = products.annotate(lower_name=Lower('name'))  # to allow for lower case
+            if sortkey == 'category':
+                sortkey = 'category__name'  # double underscore allows us to drill into a related model
 
             if 'direction' in request.GET:
                 direction = request.GET['direction']
@@ -45,7 +47,7 @@ def all_products(request):
             queries = Q(name__icontains=query) | Q(description__icontains=query)
             products = products.filter(queries)
 
-    current_sorting = f'{sort}_{direction}'  # to pass the sort and dir into the html eg price asc
+    current_sorting = f'{sort}_{direction}'  # to pass the sort and dir into the html eg price_asc
 
     context = {
         'products': products,
