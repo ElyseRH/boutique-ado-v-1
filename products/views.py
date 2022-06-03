@@ -12,8 +12,24 @@ def all_products(request):
     # set query to None so there's no error when page is loaded without a search term
     query = None
     categories = None
+    sort = None
+    direction = None  # this is for direction of sorting
 
     if request.GET:
+        if 'sort' in request.GET:
+            sortkey = request.GET['sort']
+            sort = sortkey
+            if sortkey == 'name':
+                sortkey = 'lower_name'  # to allow for lower case
+                products = products.annotate(lower_name=Lower('name'))  # to allow for lower case
+
+            if 'direction' in request.GET:
+                direction = request.GET['direction']
+                if direction == 'desc':
+                    sortkey = f'-{sortkey}'  # this adds a minus in front of the sortkey to reverse the order
+            products = products.order_by(sortkey)  # this is actually sorting it
+
+
         if 'category' in request.GET:
             categories = request.GET['category'].split(',')
             products = products.filter(category__name__in=categories)
@@ -29,10 +45,13 @@ def all_products(request):
             queries = Q(name__icontains=query) | Q(description__icontains=query)
             products = products.filter(queries)
 
+    current_sorting = f'{sort}_{direction}'  # to pass the sort and dir into the html eg price asc
+
     context = {
         'products': products,
         'search_term': query,
         'current_categories': categories,
+        'current_sorting': current_sorting,
     }
 
     return render(request, 'products/products.html', context)
