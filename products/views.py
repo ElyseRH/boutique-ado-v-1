@@ -68,7 +68,7 @@ def product_detail(request, product_id):
 
     context = {
         'product': product,
-        'search_term': query,
+        # 'search_term': query,
     }
 
     return render(request, 'products/product_detail.html', context)
