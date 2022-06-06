@@ -24,7 +24,7 @@ def bag_contents(request):
             product_count += item_data
             bag_items.append({
                 'item_id': item_id,
-                'quantity': item_data,
+                'quantity': item_data,  # correct to be item data that was passed in
                 'product': product,
             })
         else:
@@ -34,7 +34,7 @@ def bag_contents(request):
                 product_count += quantity
                 bag_items.append({
                     'item_id': item_id,
-                    'quantity': item_data,
+                    'quantity': quantity,  # needs to be quantity from for loop in this else clause
                     'product': product,
                     'size': size,
                 })
