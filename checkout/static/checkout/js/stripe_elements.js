@@ -53,6 +53,8 @@ form.addEventListener('submit', function(ev) {
     ev.preventDefault();
     card.update({ 'disabled': true});  // this is to prevent multiple submissions
     $('#submit-button').attr('disabled', true);  // this is also to prevent multiple submissions
+    $('#payment-form').fadeToggle(100);
+    $('#loading-overlay').fadeToggle(100);
     // here is where stripe sends the pax's info off
     stripe.confirmCardPayment(clientSecret, {
         payment_method: {
@@ -68,6 +70,8 @@ form.addEventListener('submit', function(ev) {
                 </span>
                 <span>${result.error.message}</span>`;
             $(errorDiv).html(html);
+            $('#payment-form').fadeToggle(100);
+            $('#loading-overlay').fadeToggle(100);
             card.update({ 'disabled': false});  // re-enables card to alow user to fix it
             $('#submit-button').attr('disabled', false);
         } else {
