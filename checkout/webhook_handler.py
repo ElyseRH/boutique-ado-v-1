@@ -16,3 +16,20 @@ class StripeWH_Handler:
         return HttpResponse(
             content=f'Webbook received: {event["type"]}',
             status=200)
+
+    def handle_payment_intent_succeeded(self, event):
+        """
+        Handle a successful payment intent
+        """
+        return HttpResponse(
+            content=f'Webbook received: {event["type"]}',
+            status=200)
+    
+    def handle_payment_intent_failed(self, event):
+        """
+        Handle a failed payment intent
+        """
+        return HttpResponse(
+            content=f'Webbook received: {event["type"]}',
+            status=200)
+    
