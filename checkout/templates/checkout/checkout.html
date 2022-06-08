@@ -135,3 +135,11 @@
         </div>
     </div>
 {% endblock %}
+
+<!-- json script is an built in template filter to render json files here. Uses id to search? -->
+{% block postloadjs %}
+    {{ block.super }}
+    {{ stripe_public_key|json_script:"id_stripe_public_key" }}
+    {{ client_secret|json_script:"id_client_secret" }}
+    <script src="{% static 'checkout/js/stripe_elements.js' %}"></script>
+{% endblock %}
