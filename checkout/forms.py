@@ -22,7 +22,6 @@ class OrderForm(forms.ModelForm):
             'full_name': 'Full Name',
             'email': 'Email Address',
             'phone_number': 'Phone Number',
-            'country': 'Country',
             'postcode': 'Postal Code',
             'town_or_city': 'Town or City',
             'street_address1': 'Street Address 1',
@@ -31,12 +30,14 @@ class OrderForm(forms.ModelForm):
         }
 
         # autofocus means cursor will start here, then iterate through fields
+        # include check for country
         self.fields['full_name'].widget.attrs['autofocus'] = True
         for field in self.fields:
-            if self.fields[field].required:
-                placeholder = f'{placeholders[field]} *'  # this adds * if required
-            else:
-                placeholder = placeholders[field]
-            self.fields[field].widget.attrs['placeholder'] = placeholder  # this sets placeholders to their values set in the dict above
+            if field != 'country':
+                if self.fields[field].required:
+                    placeholder = f'{placeholders[field]} *'  # this adds * if required
+                else:
+                    placeholder = placeholders[field]
+                self.fields[field].widget.attrs['placeholder'] = placeholder  # this sets placeholders to their values set in the dict above
             self.fields[field].widget.attrs['class'] = 'stripe-style-input'  # adds a custom css class
             self.fields[field].label = False  # removes form fields labels, as we added our own
