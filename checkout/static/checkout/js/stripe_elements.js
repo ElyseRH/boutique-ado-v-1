@@ -55,60 +55,80 @@ form.addEventListener('submit', function(ev) {
     $('#submit-button').attr('disabled', true);  // this is also to prevent multiple submissions
     $('#payment-form').fadeToggle(100);
     $('#loading-overlay').fadeToggle(100);
+
+    // get boolean values of 'save info' box by seeing if it is checked
+    var saveInfo = Boolean($('#id-save-info').attr('checked'));
+    // get csrf token from input that django generates
+    var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+    // create object to pass info through and create client secret for the payment intent
+    var postData = {
+        'csrfmiddlewaretoken': csrfToken,
+        'client_secret': clientSecret,
+        'save_info': saveInfo,
+    };
+    // set up url to route to urls.py
+    var url = '/checkout/cache_checkout_data/'; 
+
+    // use post method to call postData and url
     // here is where stripe sends the pax's info off
-    stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
-            card: card,
-            // form data needs to be added to confirmed card payment method, form data is added like below
-            // use trim to get rid of white space. separate billing and shipping
-            // post code is only on ship as on billing it will come from stripe, and stripe will override
-            // it if we add it to billing
-            billing_details: {
+    $.post(url, postData).done(function () {
+        stripe.confirmCardPayment(clientSecret, {
+            payment_method: {
+                card: card,
+                // form data needs to be added to confirmed card payment method, form data is added like below
+                // use trim to get rid of white space. separate billing and shipping
+                // post code is only on ship as on billing it will come from stripe, and stripe will override
+                // it if we add it to billing
+                billing_details: {
+                    name: $.trim(form.full_name.value),
+                    phone: $.trim(form.phone_number.value),
+                    email: $.trim(form.email.value),
+                    address:{
+                        line1: $.trim(form.street_address1.value),
+                        line2: $.trim(form.street_address2.value),
+                        city: $.trim(form.town_or_city.value),
+                        country: $.trim(form.country.value),
+                        state: $.trim(form.county.value),
+                    }
+                }
+            },
+            shipping: {
                 name: $.trim(form.full_name.value),
                 phone: $.trim(form.phone_number.value),
-                email: $.trim(form.email.value),
-                address:{
+                address: {
                     line1: $.trim(form.street_address1.value),
                     line2: $.trim(form.street_address2.value),
                     city: $.trim(form.town_or_city.value),
                     country: $.trim(form.country.value),
+                    postal_code: $.trim(form.postcode.value),
                     state: $.trim(form.county.value),
                 }
+            },
+        }).then(function(result) {
+            if (result.error) {
+                // shows error to pax, same as before
+                var errorDiv = document.getElementById('card-errors');
+                var html = `
+                    <span class="icon" role="alert">
+                    <i class="fas fa-times"></i>
+                    </span>
+                    <span>${result.error.message}</span>`;
+                $(errorDiv).html(html);
+                $('#payment-form').fadeToggle(100);
+                $('#loading-overlay').fadeToggle(100);
+                card.update({ 'disabled': false});  // re-enables card to alow user to fix it
+                $('#submit-button').attr('disabled', false);
+            } else {
+                if (result.paymentIntent.status === 'succeeded') {
+                    form.submit();
+                    // there's a risk of pax closing the window before callback execution.
+                    // set up webhook or plugin to handle any busi-critical post payment action
+                    // or just include msg saying don't close the window?
+                }
             }
-        },
-        shipping: {
-            name: $.trim(form.full_name.value),
-            phone: $.trim(form.phone_number.value),
-            address: {
-                line1: $.trim(form.street_address1.value),
-                line2: $.trim(form.street_address2.value),
-                city: $.trim(form.town_or_city.value),
-                country: $.trim(form.country.value),
-                postal_code: $.trim(form.postcode.value),
-                state: $.trim(form.county.value),
-            }
-        },
-    }).then(function(result) {
-        if (result.error) {
-            // shows error to pax, same as before
-            var errorDiv = document.getElementById('card-errors');
-            var html = `
-                <span class="icon" role="alert">
-                <i class="fas fa-times"></i>
-                </span>
-                <span>${result.error.message}</span>`;
-            $(errorDiv).html(html);
-            $('#payment-form').fadeToggle(100);
-            $('#loading-overlay').fadeToggle(100);
-            card.update({ 'disabled': false});  // re-enables card to alow user to fix it
-            $('#submit-button').attr('disabled', false);
-        } else {
-            if (result.paymentIntent.status === 'succeeded') {
-                form.submit();
-                // there's a risk of pax closing the window before callback execution.
-                // set up webhook or plugin to handle any busi-critical post payment action
-                // or just include msg saying don't close the window?
-            }
-        }
-    });
+        });
+    }).fail(function () {
+        // just reload the page, the error will be in django messages
+        location.reload();
+    })
 });

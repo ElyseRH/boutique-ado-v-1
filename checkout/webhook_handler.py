@@ -21,6 +21,7 @@ class StripeWH_Handler:
         """
         Handle a successful payment intent
         """
+        intent = event.data.object  # this accesses the data from the payment intent
         return HttpResponse(
             content=f'Webbook received: {event["type"]}',
             status=200)
