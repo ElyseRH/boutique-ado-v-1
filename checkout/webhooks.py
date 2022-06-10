@@ -12,6 +12,7 @@ import stripe
 def webhook(request):
     """Listen for webhooks from Stripe"""
     # code from docs (as of time of video) with some modifications
+    # as of time of video, cannot test webhooks from stripe website
     # Setup
     wh_secret = settings.STRIPE_WH_SECRET
     stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -43,7 +44,7 @@ def webhook(request):
         'payment_intent.payment_failed': handler.handle_payment_intent_payment_failed,
     }
 
-    # Get the webhook type from Stripe
+    # Get the webhook type from Stripe, literally
     event_type = event['type']
 
     # If there's a handler for it, get it from the event map

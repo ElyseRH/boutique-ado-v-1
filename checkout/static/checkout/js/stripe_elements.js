@@ -59,7 +59,35 @@ form.addEventListener('submit', function(ev) {
     stripe.confirmCardPayment(clientSecret, {
         payment_method: {
             card: card,
-        }
+            // form data needs to be added to confirmed card payment method, form data is added like below
+            // use trim to get rid of white space. separate billing and shipping
+            // post code is only on ship as on billing it will come from stripe, and stripe will override
+            // it if we add it to billing
+            billing_details: {
+                name: $.trim(form.full_name.value),
+                phone: $.trim(form.phone_number.value),
+                email: $.trim(form.email.value),
+                address:{
+                    line1: $.trim(form.street_address1.value),
+                    line2: $.trim(form.street_address2.value),
+                    city: $.trim(form.town_or_city.value),
+                    country: $.trim(form.country.value),
+                    state: $.trim(form.county.value),
+                }
+            }
+        },
+        shipping: {
+            name: $.trim(form.full_name.value),
+            phone: $.trim(form.phone_number.value),
+            address: {
+                line1: $.trim(form.street_address1.value),
+                line2: $.trim(form.street_address2.value),
+                city: $.trim(form.town_or_city.value),
+                country: $.trim(form.country.value),
+                postal_code: $.trim(form.postcode.value),
+                state: $.trim(form.county.value),
+            }
+        },
     }).then(function(result) {
         if (result.error) {
             // shows error to pax, same as before
