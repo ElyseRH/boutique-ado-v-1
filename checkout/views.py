@@ -17,7 +17,7 @@ def cache_checkout_data(request):
     # before we call confirm card payment method in js we'll make a post request to this view
     # and pass it the client secret (pid is payment id for payment intent)
     try:
-        pid = request.POST.get('client_secret').split('_secret')[0]
+        pid = request.POST.get('client_secret').split('_secret')[0]  # split this just to get the payment id
         stripe.api_key = settings.STRIPE_SECRET_KEY
         stripe.PaymentIntent.modify(pid, metadata={
                 'bag': json.dumps(request.session.get('bag', {})),  # this is to save info and use later
@@ -53,7 +53,11 @@ def checkout(request):
 
         order_form = OrderForm(form_data)
         if order_form.is_valid():
-            order = order_form.save()  # have to save this in a variable in order to access as arg=order.ordernumber later
+            order = order_form.save(commit=False)  # have to save this in a variable in order to access as arg=order.ordernumber later
+            pid = request.POST.get('client_secret').split('_secret')[0]
+            order.stripe_pid = pid
+            order.original_bag = json.dumps(bag)  # put bag into model for future use as 'original bag'
+            order.save()
             for item_id, item_data in bag.items():
                 try:
                     product = Product.objects.get(id=item_id)
