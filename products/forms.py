@@ -9,7 +9,7 @@ class ProductForm(forms.ModelForm):
         fields = '__all__'
     
     def __init__(self, *args, **kwargs):
-        super().__init(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         # want categories to show under their friendly names, so get all and then
         # create a list of tuples of the friendly names with their associated category ids.
         # this is called list comprehension, basically just a for loop that adds items to a list
