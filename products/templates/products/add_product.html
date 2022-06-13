@@ -25,7 +25,14 @@
             <div class="col-12 col-md-6">
                 <form method="POST" action="{% url 'add_product' %}" class="form mb-2" enctype="multipart/form-data">
                     {% csrf_token %}
-                    {{ form | crispy }}
+                    <!-- code to allow for widget to display properly, displays crispy elements for everything but image -->
+                    {% for field in form  %}
+                        {% if field.name != 'image' %}
+                            {{ field | as_crispy_field }}
+                        {% else %}
+                            {{ field }}
+                            {% endif %}
+                    {% endfor %}
                     <div class="text-right">
                         <a class="btn btn-outline-black rounded-0" href="{% url 'products' %}">Cancel</a>
                         <button class="btn btn-black rounded-0" type="submit">Add Product</button>
@@ -34,4 +41,16 @@
             </div>            
         </div>
     </div>
+{% endblock %}
+
+<!-- notify user of what img will be changed to -->
+{% block postloadjs %}
+    {{ block.super }}
+    <script type="text/javascript">
+        $('#new-image').change(function() {
+            // when element new-image changes we'll get the file and make changes
+            var file = $('#new-image')[0].files[0];
+            $('#filename').text(`Images will be set to ${file.name}`);  // backticks used here
+        })
+    </script>
 {% endblock %}
