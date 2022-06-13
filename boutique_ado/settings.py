@@ -30,7 +30,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', '')
 DEBUG = False
 # DEBUG = 'DEVELOPMENT' in os.environ
 
-ALLOWED_HOSTS = ['elyserh-bado.herokuapp.com']
+ALLOWED_HOSTS = ['elyserh-bado.herokuapp.com', 'localhost']
 
 
 # Application definition
