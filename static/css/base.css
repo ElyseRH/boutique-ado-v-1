@@ -244,9 +244,9 @@ just use inner content block */
     border-color: #222;
 }
 
-/* .allauth-form-inner-content a {
+.allauth-form-inner-content a {
 	color: #17a2b8; /* text-info */
-} */
+}
 
 
 /* Product form */
